@@ -17,14 +17,15 @@ export default function todo(){
 
     
     
-    useEffect(async () => {
+    useEffect( () => {
 
         if(router.isReady){
             console.log("getting toekn and grabbing the todo item");
             const token = getToken({Template: "codehooks"});
-            setData(await fetchTodo(token, id));
+            const todoObject = fetchTodo(token, id);
+            setData(todoObject);
 
-            setDone(jsonData["done"]);
+            setDone(todoObject["done"]);
             console.log("got todo item");
             setLoading(false);
         }
@@ -67,8 +68,8 @@ export default function todo(){
         return(
             <>
             <div>
-                <div className="user">{jsonData['user_id']}</div>
-                <div className="description">{jsonData['description']}</div>
+                <div className="user">{jsonData["user_id"]}</div>
+                <div className="description">{jsonData["description"]}</div>
                 <input type="checkbox" checked={done} onChange={toggleDone}></input>
             </div>
             </>

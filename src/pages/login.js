@@ -2,24 +2,25 @@ import { SignUp } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 
 
 export default function login(){
     const { isLoaded, userId, sessionId, getToken } = useAuth();
+    const router = useRouter();
 
 
     useEffect(() => {
 
-        if(userId){
-            Router.push("/todos/");
+        if(userId && router.isReady){
+            router.push("/todos/");
         }
-    }, []);
+    }, [router]);
 
     
     return(
         <>
-        <SignUp routing="path" path="/login" redirectUrl="/todos/" homeUrl="/todos/"/>
+        <SignUp routing="path" path="/login" redirectUrl="/todos/"/>
         </>
     )
 }
