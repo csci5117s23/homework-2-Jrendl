@@ -1,47 +1,56 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import {useAuth} from "@clerk/nextjs";
+
+import { fetchTodo , cohoSetDone} from "@/modules/helpers";
 
 export default function todo(){
     const [jsonData, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [done, setDone] = useState(false);
     
+    const { isLoaded, userId, sessionId, getToken } = useAuth();
+
     const router = useRouter();
+    const {id} = router.query;
 
     
-    const REACT_APP_API_ENDPOINT = 'https://backend-cxwm.api.codehooks.io/dev';
-    const REACT_APP_API_KEY = '40d236ec-c97e-4fc8-991c-fa822109ef51';
     
-    useEffect(() => {
-        const fetchData = async () => {
-            const {id} = router.query;
-            const response = await fetch((REACT_APP_API_ENDPOINT).concat("/todos/", 1), {
-                'method':'GET',
-                'headers': {'x-apikey': REACT_APP_API_KEY}
-            })
-            console.log("getting data from %s/%s")
-            const data = await response.json()
-            // update state -- configured earlier.
-            setData(data);
+    useEffect(async () => {
+
+        if(router.isReady){
+            console.log("getting toekn and grabbing the todo item");
+            const token = getToken({Template: "codehooks"});
+            setData(await fetchTodo(token, id));
+
+            setDone(jsonData["done"]);
+            console.log("got todo item");
             setLoading(false);
         }
-        fetchData();
-    }, [])
+        
+        // if(userId){
+        //     console.log("getting toekn and grabbing the todo item");
+        //     const token = getToken({Template: "codehooks"});
+        //     setData(fetchTodo(token, id));
+
+        //     setDone(jsonData["done"]);
+        //     console.log("got todo item");
+        //     setLoading(false);
+        // }
+        
+    }, [router])
     
     
     const toggleDone = async () => {
-        const jsonDoneOut = {"done": !jsonData['done']};
-        const response = await fetch((REACT_APP_API_ENDPOINT).concat("/todos/", 1),{
-            'method': 'PATCH',
-            'headers': {'x-apikey': REACT_APP_API_KEY, 'Content-Type': 'application/json'},
-            'body': JSON.stringify(jsonDoneOut)
-        });
+        setDone(!done);
+        const token = await getToken({Template: "codehooks"});
+
+        const response = cohoSetDone(token, id, done);
 
         if(response.ok){
             console.log("changed");
-            let temp = jsonData;
-            temp['done'] = !temp['done'];
-            setData(temp);
+            setData((await response).json());
         }
 
     }
@@ -60,7 +69,7 @@ export default function todo(){
             <div>
                 <div className="user">{jsonData['user_id']}</div>
                 <div className="description">{jsonData['description']}</div>
-                <input type="checkbox" checked={jsonData['done']} onChange={toggleDone}></input>
+                <input type="checkbox" checked={done} onChange={toggleDone}></input>
             </div>
             </>
         )
