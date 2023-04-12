@@ -7,7 +7,7 @@ import {crudlify} from 'codehooks-crudlify'
 import {object, number, string, boolean} from 'yup'
 
 const todosSchema = object({
-  _id: number().positive().integer().required(),
+  _id: number().positive().integer(),
   description: string().required(),
   user_id: string().required(),
   done: boolean().required()

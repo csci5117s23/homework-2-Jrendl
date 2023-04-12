@@ -17,37 +17,30 @@ export default function todo(){
 
     
     
-    useEffect( () => {
-
-        if(router.isReady){
-            console.log("getting toekn and grabbing the todo item");
-            const token = getToken({Template: "codehooks"});
-            const todoObject = fetchTodo(token, id);
-            setData(todoObject);
-
-            setDone(todoObject["done"]);
-            console.log("got todo item");
-            setLoading(false);
+    useEffect(()=>{
+        async function doThings(){
+            if(router.isReady && userId){
+                console.log("getting toekn and grabbing the todo item");
+                const token = await getToken({Template: "codehooks"});
+                const todoObject = await fetchTodo(token, id, userId);
+                await setData(todoObject[0]);
+    
+                setDone(todoObject[0]["done"]);
+                setLoading(false);
+            }
         }
-        
-        // if(userId){
-        //     console.log("getting toekn and grabbing the todo item");
-        //     const token = getToken({Template: "codehooks"});
-        //     setData(fetchTodo(token, id));
-
-        //     setDone(jsonData["done"]);
-        //     console.log("got todo item");
-        //     setLoading(false);
-        // }
-        
-    }, [router])
+        doThings();
+    }, [router, isLoaded])
     
     
     const toggleDone = async () => {
-        setDone(!done);
+        let tempDone = done;
+        setDone(!tempDone);
         const token = await getToken({Template: "codehooks"});
+        console.log("changed done from %s to %s", tempDone, !tempDone);
+        tempDone = !tempDone;
 
-        const response = cohoSetDone(token, id, done);
+        const response = cohoSetDone(token, id, tempDone);
 
         if(response.ok){
             console.log("changed");
