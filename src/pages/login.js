@@ -1,4 +1,4 @@
-import { SignUp } from "@clerk/nextjs";
+import { SignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
@@ -20,7 +20,7 @@ export default function login(){
     
     return(
         <>
-        <SignUp routing="path" path="/login" redirectUrl="/todos/"/>
+        <SignIn routing="path" path="/login" redirectUrl="/todos/"/>
         </>
     )
 }

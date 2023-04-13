@@ -27,6 +27,17 @@ export async function cohoSetDone(token, id, doneVal){
     return await response;
 }
 
+export async function changeDescription(token, id, descVal){
+    const msg = {"description": descVal};
+    const response = await fetch(backendURL + "/todos/" + id, {
+        "method": 'PATCH',
+        "headers": {"Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"},
+        "body": JSON.stringify(msg)
+    });
+
+    return await response;
+}
 
 
 export async function fetchAllInProgress(token, user_id){

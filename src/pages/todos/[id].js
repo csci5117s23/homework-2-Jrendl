@@ -3,12 +3,13 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import {useAuth} from "@clerk/nextjs";
 
-import { fetchTodo , cohoSetDone} from "@/modules/helpers";
+import { fetchTodo , cohoSetDone, changeDescription} from "@/modules/helpers";
 
 export default function todo(){
     const [jsonData, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [done, setDone] = useState(false);
+    const [description, setDesc] = useState(null);
     
     const { isLoaded, userId, sessionId, getToken } = useAuth();
 
@@ -26,6 +27,7 @@ export default function todo(){
                 await setData(todoObject[0]);
     
                 setDone(todoObject[0]["done"]);
+                setDesc(todoObject[0]["description"]);
                 setLoading(false);
             }
         }
@@ -34,7 +36,7 @@ export default function todo(){
     
     
     const toggleDone = async () => {
-        let tempDone = done;
+        let tempDone = done; 
         setDone(!tempDone);
         const token = await getToken({Template: "codehooks"});
         console.log("changed done from %s to %s", tempDone, !tempDone);
@@ -43,7 +45,20 @@ export default function todo(){
         const response = cohoSetDone(token, id, tempDone);
 
         if(response.ok){
-            console.log("changed");
+            console.log("changed done value to %s", tempDone);
+            setData((await response).json());
+        }
+
+    }
+
+    const descChange = async (e) =>{
+        let tempDesc = e.target.value;
+        setDesc(tempDesc);
+        const token = await getToken({Template: "codehooks"});
+        const response = changeDescription(token, id, tempDesc);
+
+        if(response.ok){
+            console.log("Change description to %s", tempDesc);
             setData((await response).json());
         }
 
@@ -61,9 +76,9 @@ export default function todo(){
         return(
             <>
             <div>
-                <div className="user">{jsonData["user_id"]}</div>
-                <div className="description">{jsonData["description"]}</div>
                 <input type="checkbox" checked={done} onChange={toggleDone}></input>
+                <input type="text" name="newDesc" placeholder={jsonData["description"]} onChange={e => descChange(e)}></input>
+                
             </div>
             </>
         )

@@ -1,28 +1,35 @@
 import Link from "next/link";
-import { fetchAllInProgress, cohoSetDone } from "@/modules/helpers";
+import { fetchAllInProgress} from "@/modules/helpers";
 import { useEffect, useState } from "react";
 import {useAuth} from "@clerk/nextjs";
+import {SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
+import {TodoList} from "@/components/todoList"
 
-export default function todoList() {
+export default function TodosPage() {
     const [todoItems, setTodoItems] = useState(null);
     const { isLoaded, userId, sessionId, getToken } = useAuth();
     const [loading, setLoading] = useState(true);
     
     useEffect(() => {
         async function getTodos(){
-            if(isLoaded){
+            if(isLoaded && userId){
                 const token = await getToken({Template: "codehooks"});
 
                 const userTodos = await fetchAllInProgress(token, userId);
 
                 setTodoItems(userTodos);
                 setLoading(false);
+            }else if (isLoaded){
+                setLoading(false);
             }
+
             
         } 
         getTodos();
         
     },  [isLoaded])
+
+
     
 
     if(loading){
@@ -30,48 +37,22 @@ export default function todoList() {
         <div> Loading.... </div>
         </>
     }else{
-        return (
-            <>
-                <ul>
-                    {todoItems.map((todo, index)=>{
-                        return <li key={index}><TodoCard
-                                    id = {todo["_id"]}
-                                    done = {todo["done"]}
-                                    description = {todo["description"]}
-                        /></li>
-                    })}
-                </ul>
-            </>
+        return(
+            <div>
+                <SignedIn>
+                    <TodoList todoItems = {todoItems}></TodoList>
+                    <Link href = "/done"> Completed Todos</Link>
+                </SignedIn>
+                <SignedOut>
+                    <RedirectToSignIn redirectUrl="/todos/"></RedirectToSignIn>
+                </SignedOut>
+            </div>
         )
+        
 
+        
     }
 
     
 
 }
-
-
-
-function TodoCard(props){
-    const [todoDone, setDone] = useState(props.done);
-    const { isLoaded, userId, sessionId, getToken } = useAuth();
-
-    const toggleDone = async () => {
-        const tempDone = !todoDone;
-        setDone(tempDone);
-        const token = await getToken({Template: "codehooks"});
-
-        const response = cohoSetDone(token, props.id, todoDone);
-
-        if(response.ok){
-            console.log("changed");
-            setData((await response).json());
-        }
-
-    }
-    return(<>
-    
-        <input type="checkbox" checked = {todoDone} onChange = {toggleDone}></input>
-        <Link href={"/todos/" + props.id}>{props.description}</Link>
-    </>)
-} 
