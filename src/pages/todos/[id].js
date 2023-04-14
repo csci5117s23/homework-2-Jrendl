@@ -30,6 +30,9 @@ export default function todo(){
                 setDone(todoObject[0]["done"]);
                 setDesc(todoObject[0]["description"]);
                 setLoading(false);
+            }else if(isLoaded && !userId){
+                console.log("Attempting to access when not logged in");
+                setLoading(false);
             }
         }
         doThings();
@@ -73,16 +76,25 @@ export default function todo(){
         </>
     }else{
         return(
-            <div className="column">
-                <div className="card">
-                    <header className="card-header">
-                        <input type="checkbox" checked={done} onChange={toggleDone}></input>
-                        <input type="text" className="card-header-title" name="newDesc" value={description} onChange={e => setDesc(e.target.value)}></input>
-                        <button className="card-header-icon" onClick={descChange}>Change Description</button>
-                    </header>
-                </div>
-                
-            </div>
+            <>
+                <SignedIn>
+                    <div className="column">
+                        <div className="card">
+                            <header className="card-header">
+                                <input type="checkbox" checked={done} onChange={toggleDone}></input>
+                                <input type="text" className="card-header-title" name="newDesc" value={description} onChange={e => setDesc(e.target.value)}></input>
+                                <button className="card-header-icon" onClick={descChange}>Change Description</button>
+                            </header>
+                        </div>
+                    
+                    </div>
+                </SignedIn>
+                <SignedOut>
+                    <RedirectToSignIn redirectUrl={"/todos/" + id}/>
+                </SignedOut>
+            
+            </>
+            
         )
     }
 

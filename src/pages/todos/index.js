@@ -1,15 +1,13 @@
-import Link from "next/link";
 import { fetchAllInProgress, addTodoObject} from "@/modules/helpers";
-import { useCallback, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import {useAuth} from "@clerk/nextjs";
 import {SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
-import {TodoList} from "@/components/todoList"
+import {TodoList, } from "@/components/todoList"
 
 export default function TodosPage() {
-    const [todoItems, setTodoItems] = useState(null);
+    const [todoItems, setTodoItems] = useState([]);
     const { isLoaded, userId, sessionId, getToken } = useAuth();
     const [loading, setLoading] = useState(true);
-    const [somethingChanged, triggerChange] = useState(false);
 
 
     useEffect(() => {
@@ -20,9 +18,9 @@ export default function TodosPage() {
                 const userTodos = await fetchAllInProgress(token, userId);
 
                 setTodoItems(userTodos);
-                triggerChange(false);
                 setLoading(false);
-            }else{
+            }else if(isLoaded && !userId){
+                console.log("Attempting to access when not logged in");
                 setLoading(false);
             }
 
@@ -30,23 +28,16 @@ export default function TodosPage() {
         } 
         getTodos();
         
-    },  [isLoaded, somethingChanged])
+    },  [userId, isLoaded])
 
 
     async function createTodoItem(description){
+        console.log("I've been called");
         const token = await getToken({Template: "codehooks"});
 
-        const response = await addTodoObject(token, userId, description);
+        const newTodo = await addTodoObject(token, userId, description);
+        setTodoItems(todoItems.concat(newTodo));
 
-        if(response.ok){
-            const newTodo = response.json();
-
-            let tempTodoList = todoItems;
-            tempTodoList.push(newTodo);
-            setTodoItems(tempTodoList);
-            triggerChange(true);
-            setLoading(true);
-        }
     }
 
 
@@ -57,16 +48,19 @@ export default function TodosPage() {
         <div> Loading.... </div>
         </>
     }else{
+       
         return(
             <div>
                 <SignedIn>
-                    <TodoList todoItems = {todoItems}></TodoList>
+                    <ul className="column">
+                        <TodoList todoItems = {todoItems}/>
+                    </ul>
                     <div className="column">
                         <AddTodo createTodoItem = {createTodoItem}/>
                     </div>
                 </SignedIn>
                 <SignedOut>
-                    <RedirectToSignIn redirectUrl="/todos/"></RedirectToSignIn>
+                    <RedirectToSignIn redirectUrl="/todos"></RedirectToSignIn>
                 </SignedOut>
             </div>
         )
@@ -89,8 +83,19 @@ function AddTodo(props){
     return(
         <div className="card">
             <header className="card-header">
-                <input className= "card-header-title" type="text" value={description} onChange={e => setDescription(e.target.value)}></input>
-                <button className="card-header-icon" onClick={() => props.createTodoItem(description)}>Submit Todo</button>
+                <input 
+                    className= "card-header-title" 
+                    type="text" 
+                    value={description} 
+                    onChange={e => setDescription(e.target.value)}/>
+                <button 
+                    className="card-header-icon" 
+                    onClick={
+                        () => {
+                            props.createTodoItem(description); 
+                            setDescription("Add Todo");
+                            }}
+                >Submit Todo</button>
             </header>
             
         </div>

@@ -20,7 +20,7 @@ export default function login(){
     
     return(
         <>
-        <SignIn routing="path" path="/login" redirectUrl="/todos/" />
+        <SignIn routing="path" path="/login" redirectUrl="/todos" />
         </>
     )
 }
