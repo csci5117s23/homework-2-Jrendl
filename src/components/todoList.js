@@ -6,13 +6,17 @@ import Link from "next/link";
 
 export function TodoList(props){
     return(
-        <ul>
+        <ul className="column">
             {props.todoItems.map((todo, index)=>{
-                return <li key={index}><TodoCard
+                return (
+                    <li key={index}><TodoCard
                             id = {todo["_id"]}
                             done = {todo["done"]}
                             description = {todo["description"]}
-                /></li>
+                    /></li>
+
+                )
+
             })}
         </ul>
 
@@ -22,7 +26,7 @@ export function TodoList(props){
 }
 
 
-function TodoCard(props){
+export function TodoCard(props){
     const [todoDone, setDone] = useState(props.done);
     const { isLoaded, userId, sessionId, getToken } = useAuth();
 
@@ -39,9 +43,12 @@ function TodoCard(props){
         }
 
     }
-    return(<>
-    
-        <input type="checkbox" checked = {todoDone} onChange = {toggleDone}></input>
-        <Link href={"/todos/" + props.id}>{props.description}</Link>
-    </>)
+    return(
+        <div className="card">
+            <header className="card-header">
+                <input type="checkbox" checked = {todoDone} onChange = {toggleDone}></input>
+                <Link className="card-header-title" href={"/todos/" + props.id}>{props.description}</Link>
+            </header>
+        </div>
+    )
 } 

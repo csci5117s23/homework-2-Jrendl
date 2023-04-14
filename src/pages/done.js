@@ -41,7 +41,6 @@ export default function TodosPage() {
             <div>
                 <SignedIn>
                     <TodoList todoItems = {todoItems}></TodoList>
-                    <Link href = "/todos/"> In-Progress Todos</Link>
                 </SignedIn>
                 <SignedOut>
                     <RedirectToSignIn redirectUrl="/todos/"></RedirectToSignIn>

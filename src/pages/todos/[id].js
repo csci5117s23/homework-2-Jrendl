@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import {useAuth} from "@clerk/nextjs";
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs";
 
 import { fetchTodo , cohoSetDone, changeDescription} from "@/modules/helpers";
 
@@ -51,11 +52,9 @@ export default function todo(){
 
     }
 
-    const descChange = async (e) =>{
-        let tempDesc = e.target.value;
-        setDesc(tempDesc);
+    const descChange = async () =>{
         const token = await getToken({Template: "codehooks"});
-        const response = changeDescription(token, id, tempDesc);
+        const response = changeDescription(token, id, description);
 
         if(response.ok){
             console.log("Change description to %s", tempDesc);
@@ -74,13 +73,16 @@ export default function todo(){
         </>
     }else{
         return(
-            <>
-            <div>
-                <input type="checkbox" checked={done} onChange={toggleDone}></input>
-                <input type="text" name="newDesc" placeholder={jsonData["description"]} onChange={e => descChange(e)}></input>
+            <div className="column">
+                <div className="card">
+                    <header className="card-header">
+                        <input type="checkbox" checked={done} onChange={toggleDone}></input>
+                        <input type="text" className="card-header-title" name="newDesc" value={description} onChange={e => setDesc(e.target.value)}></input>
+                        <button className="card-header-icon" onClick={descChange}>Change Description</button>
+                    </header>
+                </div>
                 
             </div>
-            </>
         )
     }
 

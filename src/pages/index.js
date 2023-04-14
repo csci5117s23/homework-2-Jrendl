@@ -10,11 +10,19 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Joe's Todo App!</title>
+        <meta charset="utf-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"></link>
       </Head>
-      <main className={styles.main}>
-       <div>Joe's Todo App!</div>
-       <Link href='/login'>Login to start making your list!</Link>
+      <main className="hero is-primary is-fullheight">
+        <div className='hero-body'>
+          <div className='container has-text-centered'>
+            <p className='title'>
+              Joe's Todo App!
+            </p>
+            <Link className="subtitle" href='/login'>Login to start making your list!</Link>
+          </div>
+        </div>
       </main>
     </>
   )
